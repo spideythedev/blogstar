@@ -1,0 +1,422 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+:root {
+  font-family: "DM Sans", sans-serif;
+  color: #242424;
+  background: #fffdf8;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  font-optical-sizing: auto;
+  --paper: #fffdf8;
+  --ink: #242424;
+  --muted: #77736c;
+  --line: #e9e5dc;
+  --accent: #f2c94c;
+  --surface: #f7f3e9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+a {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  color: inherit;
+}
+
+.app {
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  transition: background 180ms, color 180ms;
+}
+
+.app.dark {
+  --paper: #171717;
+  --ink: #f4f0e8;
+  --muted: #aaa49a;
+  --line: #34322e;
+  --surface: #24231f;
+  --accent: #f2c94c;
+}
+
+.header {
+  max-width: 1120px;
+  margin: auto;
+  padding: 24px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.brand-star {
+  color: #d9a900;
+  font-size: 30px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.header-tagline {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.theme-toggle {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+main {
+  max-width: 1000px;
+  margin: auto;
+  padding: 0 32px;
+}
+
+.intro {
+  padding: 100px 0 90px;
+  border-bottom: 1px solid var(--line);
+}
+
+.eyebrow {
+  display: inline-block;
+  padding: 8px 13px;
+  border-radius: 30px;
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.intro h1 {
+  margin: 28px 0 16px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(64px, 11vw, 112px);
+  line-height: 0.96;
+  letter-spacing: -0.085em;
+}
+
+.intro h1 span {
+  color: #d4a900;
+}
+
+.intro > p {
+  max-width: 400px;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.posts-section {
+  padding: 60px 0 100px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.section-heading h2 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 25px;
+}
+
+.section-heading > span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.post-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 48px 36px;
+}
+
+.post-card {
+  min-width: 0;
+}
+
+.post-cover {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 5px;
+  background: var(--surface);
+  transition: transform 200ms;
+}
+
+.post-card > a:first-child:hover .post-cover {
+  transform: translateY(-3px);
+}
+
+.post-meta,
+.article-meta {
+  display: flex;
+  gap: 9px;
+  margin-top: 19px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.post-card h2 {
+  margin: 12px 0 8px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 26px;
+  line-height: 1.2;
+  letter-spacing: -0.045em;
+}
+
+.post-card h2 a:hover,
+.read-link:hover,
+.back-link:hover {
+  text-decoration: underline;
+  text-decoration-color: #d4a900;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+
+.post-card > p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.author {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.author img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+.author span {
+  display: grid;
+  gap: 2px;
+}
+
+.author strong {
+  font-size: 13px;
+}
+
+.author small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.read-link {
+  display: block;
+  width: fit-content;
+  margin-top: 20px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.read-link span {
+  margin-left: 4px;
+}
+
+.empty {
+  padding: 45px 0;
+  color: var(--muted);
+}
+
+.article-page {
+  max-width: 760px;
+  padding-top: 55px;
+  padding-bottom: 100px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.article-meta {
+  margin-top: 60px;
+}
+
+.article-title {
+  margin: 18px 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(42px, 8vw, 76px);
+  line-height: 1.03;
+  letter-spacing: -0.07em;
+}
+
+.article-description {
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.article-cover {
+  display: block;
+  width: 100%;
+  max-height: 480px;
+  margin-top: 35px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.article-content {
+  margin-top: 55px;
+  font-size: 17px;
+  line-height: 1.9;
+}
+
+.article-content h2,
+.article-content h3 {
+  margin-top: 48px;
+  font-family: "Space Grotesk", sans-serif;
+  line-height: 1.2;
+}
+
+.article-content blockquote {
+  margin: 35px 0;
+  padding: 8px 0 8px 24px;
+  border-left: 3px solid var(--accent);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 24px;
+  line-height: 1.5;
+}
+
+.article-content figure {
+  margin: 35px 0;
+}
+
+.article-content figure img {
+  width: 100%;
+  border-radius: 5px;
+}
+
+.article-content figcaption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.article-content pre {
+  overflow-x: auto;
+  padding: 20px;
+  border-radius: 5px;
+  background: var(--surface);
+  font-size: 14px;
+}
+
+.article-content video,
+.article-content audio {
+  width: 100%;
+}
+
+.article-content hr {
+  margin: 45px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.not-found {
+  min-height: 55vh;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+}
+
+.not-found a {
+  color: var(--muted);
+}
+
+.footer {
+  padding: 45px 24px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+
+.footer > span {
+  color: #d4a900;
+  font-size: 30px;
+}
+
+.footer p {
+  margin: 8px 0;
+  font-weight: 600;
+}
+
+.footer small {
+  color: var(--muted);
+}
+
+@media (max-width: 650px) {
+  .header {
+    padding: 18px 20px;
+  }
+
+  .header-tagline {
+    display: none;
+  }
+
+  main {
+    padding: 0 21px;
+  }
+
+  .intro {
+    padding: 80px 0 65px;
+  }
+
+  .post-list {
+    grid-template-columns: 1fr;
+    gap: 42px;
+  }
+
+  .posts-section {
+    padding: 45px 0 75px;
+  }
+
+  .article-page {
+    padding-top: 35px;
+  }
+
+  .article-content {
+    font-size: 16px;
+  }
+}
