@@ -1,32 +1,73 @@
+
+import { ArrowUpRight, CalendarDays } from "lucide-react";
 import { Link } from "react-router-dom";
 import Author from "./Author";
+import SpotlightCard from "./SpotlightCard";
+
+function formatDate(date) {
+  if (!date) return "";
+
+  return new Date(date).toLocaleDateString("en", {
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+  });
+}
 
 export default function PostCard({ post }) {
+  if (!post) return null;
+
   return (
-    <article className="post-card">
-      {post.cover && (
-        <Link to={`/post/${post.slug}`}>
-          <img className="post-cover" src={post.cover} alt="" />
-        </Link>
-      )}
+    <SpotlightCard className="post-card">
+      <article>
+        {post.cover && (
+          <Link
+            to={`/post/${post.slug}`}
+            className="post-card-cover"
+            tabIndex={-1}
+          >
+            <img
+              src={post.cover}
+              alt={post.coverAlt || post.title}
+              loading="lazy"
+            />
+          </Link>
+        )}
 
-      <div className="post-meta">
-        <span>{post.publishedAt}</span>
-        <span>·</span>
-        <span>{post.tags?.[0] || "Thoughts"}</span>
-      </div>
+        <div className="post-card-content">
+          <div className="post-card-meta">
+            <span>
+              <CalendarDays size={14} />
+              {formatDate(post.publishedAt)}
+            </span>
 
-      <h2>
-        <Link to={`/post/${post.slug}`}>{post.title}</Link>
-      </h2>
+            {post.readingTime && (
+              <span>{post.readingTime} min read</span>
+            )}
+          </div>
 
-      <p>{post.description}</p>
+          <h2>
+            <Link to={`/post/${post.slug}`}>
+              {post.title}
+              <ArrowUpRight size={20} />
+            </Link>
+          </h2>
 
-      <Author username={post.author} />
+          {post.description && (
+            <p>{post.description}</p>
+          )}
 
-      <Link className="read-link" to={`/post/${post.slug}`}>
-        Read this <span>↗</span>
-      </Link>
-    </article>
+          <div className="post-card-bottom">
+            <Author username={post.author} />
+
+            <div className="post-card-tags">
+              {(post.tags || []).slice(0, 3).map(tag => (
+                <span key={tag}>#{tag}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </article>
+    </SpotlightCard>
   );
 }
