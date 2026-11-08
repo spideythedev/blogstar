@@ -1,0 +1,40 @@
+
+[
+  {
+    "slug": "hello-world",
+    "title": "Well, hello there.",
+    "description": "A small beginning. A place for thoughts, experiments, stories, and whatever else feels worth writing.",
+    "author": "spideythedev",
+    "publishedAt": "2026-11-08",
+    "readingTime": 2,
+    "tags": ["hello", "thoughts"],
+    "cover": "",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Well, this is a place to write. Anything, really."
+      },
+      {
+        "type": "paragraph",
+        "text": "No content schedule. No pressure to sound smart. No need to turn every thought into something profound."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Just write something."
+      },
+      {
+        "type": "paragraph",
+        "text": "BlogStar is an open space for people who have something to say. Ideas, experiments, stories, lessons, random observations — all welcome."
+      },
+      {
+        "type": "quote",
+        "text": "You don't need a reason to write. Sometimes writing is the reason."
+      },
+      {
+        "type": "paragraph",
+        "text": "That's it. Welcome to BlogStar."
+      }
+    ]
+  }
+]
