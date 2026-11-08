@@ -1,27 +1,12 @@
-import { useEffect, useState } from "react";
+
+import { Github } from "lucide-react";
 import { getAuthor } from "../lib/content";
 
 export default function Author({ username }) {
+  if (!username) return null;
+
   const author = getAuthor(username);
-  const [profile, setProfile] = useState(null);
-
-  useEffect(() => {
-    let active = true;
-
-    fetch(`https://api.github.com/users/${username}`)
-      .then((response) => {
-        if (!response.ok) throw new Error("Profile unavailable");
-        return response.json();
-      })
-      .then((data) => {
-        if (active) setProfile(data);
-      })
-      .catch(() => {});
-
-    return () => {
-      active = false;
-    };
-  }, [username]);
+  const displayName = author?.displayName || username;
 
   return (
     <a
@@ -29,16 +14,18 @@ export default function Author({ username }) {
       href={`https://github.com/${username}`}
       target="_blank"
       rel="noreferrer"
+      aria-label={`${displayName} on GitHub`}
     >
-      <img
-        src={profile?.avatar_url || `https://github.com/${username}.png`}
-        alt=""
-      />
+      {author?.avatar ? (
+        <img src={author.avatar} alt="" loading="lazy" />
+      ) : (
+        <span className="author-avatar">
+          {displayName.charAt(0).toUpperCase()}
+        </span>
+      )}
 
-      <span>
-        <strong>{author.displayName}</strong>
-        <small>@{username}</small>
-      </span>
+      <span>{displayName}</span>
+      <Github size={14} />
     </a>
   );
 }
