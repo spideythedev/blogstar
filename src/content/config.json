@@ -1,6 +1,10 @@
+
 {
   "name": "Blog★Star",
-  "tagline": "Just Your Thoughts",
-  "description": "A place for thoughts worth sharing.",
+  "tagline": "Just Your Thoughts.",
+  "description": "A little place on the internet to write, share, and read. No content schedule. No pressure to sound smart. Just write something.",
+  "repository": "https://github.com/spideythedev/blogstar",
+  "owner": "spideythedev",
+  "defaultTheme": "light",
   "postsPerPage": 10
 }
