@@ -16,17 +16,13 @@ import {
   Sun,
   Star,
   ExternalLink,
-  Code2
+  Code2,
+  Sparkles
 } from "lucide-react";
 
 import PostCard from "./components/PostCard";
 import Author from "./components/Author";
-import {
-  getPosts,
-  getPost,
-  getConfig,
-  getAuthor
-} from "./lib/content";
+import { getPosts, getPost, getConfig, getAuthor } from "./lib/content";
 
 const REPO = "https://github.com/spideythedev/blogstar";
 const GITHUB_API = "https://api.github.com/repos/spideythedev/blogstar";
@@ -35,49 +31,63 @@ function useStars() {
   const [stars, setStars] = useState(null);
 
   useEffect(() => {
-    let active = true;
+    const controller = new AbortController();
 
-    fetch(GITHUB_API)
+    fetch(GITHUB_API, { signal: controller.signal })
       .then((response) => {
         if (!response.ok) throw new Error("GitHub unavailable");
         return response.json();
       })
-      .then((data) => {
-        if (active) setStars(data.stargazers_count);
-      })
+      .then((data) => setStars(data.stargazers_count))
       .catch(() => {});
 
-    return () => {
-      active = false;
-    };
+    return () => controller.abort();
   }, []);
 
   return stars;
 }
 
 function RichText({ text = "" }) {
-  const parts = text.split(/(@[a-zA-Z0-9-]+)/g);
+  const tokens = text.split(
+    /(@[a-zA-Z0-9-]+|\[\[(?:coral|blue|green):.*?\]\])/g
+  );
 
-  return parts.map((part, index) => {
-    if (!part.startsWith("@")) {
-      return <span key={index}>{part}</span>;
+  return tokens.map((token, index) => {
+    const mention = token.match(/^@([a-zA-Z0-9-]+)$/);
+
+    if (mention) {
+      const username = mention[1];
+      const author = getAuthor(username);
+
+      return (
+        <a
+          key={index}
+          className="mention"
+          href={`https://github.com/${username}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          @{author.displayName}
+        </a>
+      );
     }
 
-    const username = part.slice(1);
-    const author = getAuthor(username);
-
-    return (
-      <a
-        key={index}
-        className="mention"
-        href={`https://github.com/${username}`}
-        target="_blank"
-        rel="noreferrer"
-        title={`@${username} on GitHub`}
-      >
-        @{author.displayName}
-      </a>
+    const highlight = token.match(
+      /^\[\[(coral|blue|green):(.*?)\]\]$/
     );
+
+    if (highlight) {
+      return (
+        <span
+          key={index}
+          className={`text-highlight highlight-${highlight[1]}`}
+        >
+          {highlight[2]}
+        </span>
+      );
+    }
+
+    return <span key={index}>{token}</span>;
   });
 }
 
@@ -86,7 +96,7 @@ function Header({ dark, setDark }) {
 
   return (
     <header className="header">
-      <Link to="/" className="brand">
+      <Link to="/" className="brand" aria-label="BlogStar home">
         <span className="brand-star">★</span>
         <span>{config.name}</span>
       </Link>
@@ -101,7 +111,7 @@ function Header({ dark, setDark }) {
       <button
         className="theme-toggle"
         onClick={() => setDark(!dark)}
-        aria-label="Toggle theme"
+        aria-label={`Switch to ${dark ? "light" : "dark"} mode`}
       >
         {dark ? <Sun size={18} /> : <Moon size={18} />}
       </button>
@@ -117,10 +127,10 @@ function StarLink({ stars }) {
       rel="noreferrer"
       className="star-link"
     >
-      <Github size={19} />
+      <Github size={18} />
       <span>Drop a star</span>
       <Star size={15} />
-      <strong>{stars === null ? "★" : stars}</strong>
+      <strong>{stars === null ? "—" : stars?.toLocaleString()}</strong>
     </a>
   );
 }
@@ -133,36 +143,50 @@ function Home() {
   return (
     <main>
       <section className="intro">
-        <span className="eyebrow">
-          A little corner of the internet ★
-        </span>
+        <div className="intro-copy">
+          <span className="eyebrow">
+            <Sparkles size={14} />
+            A little corner of the internet
+          </span>
 
-        <h1>
-          Just your
-          <br />
-          <span className="highlight">thoughts.</span>
-        </h1>
+          <h1>
+            Just your
+            <br />
+            <span className="highlight-coral">thoughts.</span>
+          </h1>
 
-        <p>{config.description}</p>
+          <p>
+            {config.description ||
+              "Little thoughts, long stories, random experiments, and things you just want to share."}
+          </p>
 
-        <div className="intro-actions">
-          <Link to="/posts" className="primary-link">
-            Read some posts <ArrowRight size={17} />
-          </Link>
+          <div className="intro-actions">
+            <Link to="/posts" className="primary-link">
+              Have a look <ArrowRight size={17} />
+            </Link>
 
-          <a href={REPO} target="_blank" rel="noreferrer" className="text-link">
-            GitHub <ExternalLink size={14} />
-          </a>
+            <a
+              href={REPO}
+              target="_blank"
+              rel="noreferrer"
+              className="text-link"
+            >
+              Our GitHub <ExternalLink size={14} />
+            </a>
+          </div>
         </div>
 
-        <div className="hero-decoration">✳</div>
+        <div className="hero-decoration" aria-hidden="true">
+          <span>★</span>
+          <small>WRITE<br />YOUR<br />WAY</small>
+        </div>
       </section>
 
       <section className="posts-section">
         <div className="section-heading">
           <div>
-            <span className="eyebrow">Fresh from the community</span>
-            <h2>Recent writing</h2>
+            <span className="eyebrow">From people, not algorithms</span>
+            <h2>Recently written.</h2>
           </div>
 
           <Link to="/posts" className="text-link">
@@ -170,27 +194,31 @@ function Home() {
           </Link>
         </div>
 
-        <div className="post-list">
-          {posts.slice(0, 4).map((post) => (
-            <PostCard key={post.slug} post={post} />
-          ))}
-        </div>
-
-        {!posts.length && (
+        {posts.length ? (
+          <div className="post-list">
+            {posts.slice(0, 4).map((post) => (
+              <PostCard key={post.slug} post={post} />
+            ))}
+          </div>
+        ) : (
           <p className="empty">
-            Nothing here yet. Maybe you'll be the first?
+            Nothing here just yet. Maybe you'll be the first?
           </p>
         )}
       </section>
 
       <section className="community">
         <div className="community-star">★</div>
-        <div>
-          <h2>Enjoying this little place?</h2>
+
+        <div className="community-content">
+          <span className="eyebrow">Built in the open</span>
+          <h2>Hey, we're on GitHub!</h2>
           <p>
-            Blog★Star is open source. If you like what we're building,
-            drop us a star on GitHub. It genuinely helps!
+            BlogStar is open source. You can read the code,
+            suggest something, fix a bug, or just drop a star.
+            Every bit of support means something.
           </p>
+
           <StarLink stars={stars} />
         </div>
       </section>
@@ -200,23 +228,45 @@ function Home() {
 
 function PostsPage() {
   const posts = getPosts();
+  const [activeTag, setActiveTag] = useState("All");
+
+  const tags = [
+    "All",
+    ...new Set(posts.flatMap((post) => post.tags || []))
+  ];
+
+  const filteredPosts = activeTag === "All"
+    ? posts
+    : posts.filter((post) => post.tags?.includes(activeTag));
 
   return (
     <main className="page">
       <div className="page-heading">
-        <span className="eyebrow">The community's words</span>
-        <h1>All the <span className="highlight">posts.</span></h1>
-        <p>Things people wanted to share with the world.</p>
+        <span className="eyebrow">A collection of thoughts</span>
+        <h1>All the <span className="highlight-coral">posts.</span></h1>
+        <p>Different people. Different thoughts. All in one place.</p>
+      </div>
+
+      <div className="tag-filters">
+        {tags.map((tag) => (
+          <button
+            key={tag}
+            className={activeTag === tag ? "tag-filter active" : "tag-filter"}
+            onClick={() => setActiveTag(tag)}
+          >
+            {tag}
+          </button>
+        ))}
       </div>
 
       <div className="post-list">
-        {posts.map((post) => (
+        {filteredPosts.map((post) => (
           <PostCard key={post.slug} post={post} />
         ))}
       </div>
 
-      {!posts.length && (
-        <p className="empty">No posts yet. Stay around!</p>
+      {!filteredPosts.length && (
+        <p className="empty">No posts with this tag yet.</p>
       )}
     </main>
   );
@@ -239,13 +289,17 @@ function ContentBlock({ block }) {
     case "image":
       return (
         <figure>
-          <img src={block.src} alt={block.alt || ""} />
+          <img src={block.src} alt={block.alt || ""} loading="lazy" />
           {block.caption && <figcaption>{block.caption}</figcaption>}
         </figure>
       );
 
     case "video":
-      return <video controls preload="metadata" src={block.src} />;
+      return (
+        <video controls preload="metadata" src={block.src}>
+          Your browser doesn't support this video.
+        </video>
+      );
 
     case "audio":
       return <audio controls preload="metadata" src={block.src} />;
@@ -272,9 +326,11 @@ function PostPage() {
   if (!post) {
     return (
       <main className="page not-found">
-        <h1>Well, that's awkward.</h1>
-        <p>Couldn't find that post.</p>
-        <Link to="/" className="text-link">Go home <ArrowRight size={15} /></Link>
+        <h1>Hmm, can't find that one.</h1>
+        <p>Maybe the link is old, or the post moved.</p>
+        <Link to="/posts" className="text-link">
+          <ArrowLeft size={16} /> Back to posts
+        </Link>
       </main>
     );
   }
@@ -298,7 +354,12 @@ function PostPage() {
       <Author username={post.author} />
 
       {post.cover && (
-        <img className="article-cover" src={post.cover} alt="" />
+        <img
+          className="article-cover"
+          src={post.cover}
+          alt=""
+          fetchPriority="high"
+        />
       )}
 
       <article className="article-content">
@@ -313,37 +374,47 @@ function PostPage() {
 function Guide() {
   return (
     <main className="page document-page">
-      <span className="eyebrow">A little help</span>
-      <h1>The <span className="highlight">guide.</span></h1>
+      <span className="eyebrow">Before you start</span>
+      <h1>The <span className="highlight-coral">guide.</span></h1>
+
       <p className="page-lead">
-        Want to share something here? Here's how it works.
+        Got something to write about? Nice. Here's how to get it here.
       </p>
 
       <section className="guide-section">
-        <h2>01. Get the project</h2>
-        <p>Fork the <a href={REPO}>Blog★Star repository</a> on GitHub.</p>
-        <p>Clone your fork and open it in your editor.</p>
-        <pre><code>git clone YOUR_FORK_URL</code></pre>
+        <h2>01. Fork the repository</h2>
+        <p>
+          Head over to our GitHub repository and fork it.
+          That's your own copy to work with.
+        </p>
+        <a href={REPO} className="text-link">
+          Open repository <ExternalLink size={14} />
+        </a>
       </section>
 
       <section className="guide-section">
-        <h2>02. Add yourself</h2>
-        <p>Open <code>src/content/authors.json</code>.</p>
+        <h2>02. Add your name</h2>
+        <p>
+          Open <code>src/content/authors.json</code> and add yourself.
+        </p>
         <pre><code>{`{
   "your-github-username": {
     "displayName": "Your Name"
   }
 }`}</code></pre>
-        <p>Use your actual GitHub username as the key. The display name is what readers will see.</p>
       </section>
 
       <section className="guide-section">
-        <h2>03. Write a post</h2>
-        <p>Create a JSON file inside <code>src/content/posts/</code>.</p>
+        <h2>03. Write something</h2>
+        <p>
+          Create a new JSON file inside
+          <code> src/content/posts/</code>.
+          Give it a unique filename and fill in your post.
+        </p>
         <pre><code>{`{
   "slug": "my-first-post",
-  "title": "Hello, world!",
-  "description": "Just something I wanted to share.",
+  "title": "Something I wanted to share",
+  "description": "A little introduction.",
   "author": "your-github-username",
   "publishedAt": "2026-11-08",
   "tags": ["Thoughts"],
@@ -357,44 +428,37 @@ function Guide() {
       </section>
 
       <section className="guide-section">
-        <h2>04. Mention someone</h2>
+        <h2>04. Add a little colour</h2>
         <p>
-          Write <code>@githubusername</code> inside a paragraph.
-          Blog★Star turns it into a GitHub profile link and uses
-          their custom display name.
+          You can highlight words inside paragraphs and headings.
+        </p>
+        <pre><code>{`[[coral:Something important]]
+[[blue:A useful link]]
+[[green:A little positive note]]`}</code></pre>
+        <p>These are BlogStar's own inline highlights, not Markdown syntax.</p>
+      </section>
+
+      <section className="guide-section">
+        <h2>05. Mention someone</h2>
+        <p>
+          Write <code>@githubusername</code> in your paragraph.
+          We'll turn it into their GitHub profile link and use
+          their display name from authors.json.
         </p>
       </section>
 
       <section className="guide-section">
-        <h2>05. Publish it</h2>
+        <h2>06. Send a pull request</h2>
         <p>
-          Commit your changes, push them to your fork, and open a
-          pull request. Once it's merged, your post will appear
-          after the website rebuilds.
+          Commit your changes, push to your fork, and open a PR.
+          Once it's reviewed and merged, your post will show up
+          after the next deployment.
         </p>
       </section>
 
-      <section className="guide-section">
-        <h2>Markdown and content blocks</h2>
-        <p>Blog★Star uses JSON content blocks in this version.</p>
-        <ul>
-          <li><code>paragraph</code> — normal writing and mentions</li>
-          <li><code>heading</code> — section headings, with a level</li>
-          <li><code>quote</code> — highlighted quotations</li>
-          <li><code>image</code> — images with optional captions</li>
-          <li><code>video</code> — playable video files</li>
-          <li><code>audio</code> — playable audio files</li>
-          <li><code>code</code> — code snippets</li>
-          <li><code>divider</code> — a section separator</li>
-        </ul>
-        <p>
-          More Hyper MD blocks can be added as the format grows.
-        </p>
-      </section>
-
-      <a href={REPO} className="primary-link">
-        Get started on GitHub <ArrowRight size={16} />
-      </a>
+      <Link to="/posts" className="primary-link">
+        Have a look at the posts <ArrowRight size={16} />
+      </Link>
     </main>
   );
 }
@@ -404,29 +468,31 @@ function Credits() {
 
   return (
     <main className="page document-page">
-      <span className="eyebrow">The people and tools behind it</span>
-      <h1>Made with <span className="highlight">care.</span></h1>
+      <span className="eyebrow">A little appreciation</span>
+      <h1>Made with <span className="highlight-coral">care.</span></h1>
+
       <p className="page-lead">
-        A small project built for people who have something to say.
+        It's a small project, but there's a bit of work behind it.
+        Here's where it all comes from.
       </p>
 
       <section className="credit-item">
         <Code2 size={22} />
         <div>
-          <h2>Built by</h2>
+          <h2>The person behind it</h2>
           <a href="https://github.com/spideythedev">
             Fahad Malik (@spideythedev)
           </a>
-          <p>The person building Blog★Star.</p>
+          <p>Building BlogStar and figuring things out along the way.</p>
         </div>
       </section>
 
       <section className="credit-item">
         <Github size={22} />
         <div>
-          <h2>Open source</h2>
-          <a href={REPO}>github.com/spideythedev/blogstar</a>
-          <p>Read the code, contribute, or make your own version.</p>
+          <h2>The repository</h2>
+          <a href={REPO}>spideythedev/blogstar</a>
+          <p>Open source. Take a look, contribute, or make something with it.</p>
           <StarLink stars={stars} />
         </div>
       </section>
@@ -434,17 +500,25 @@ function Credits() {
       <section className="credit-item">
         <Heart size={22} />
         <div>
-          <h2>Made possible by</h2>
-          <p>React, Vite, Lucide, GitHub and everyone who contributes.</p>
+          <h2>The tools</h2>
+          <p>
+            React, Vite, Lucide, React Bits, Icons8 and GitHub.
+            All doing their little part.
+          </p>
         </div>
       </section>
 
       <section className="credit-item">
         <BookOpen size={22} />
         <div>
-          <h2>Contributors</h2>
-          <p>Every person who shares an idea, fixes something or helps this project grow.</p>
-          <a href={`${REPO}/graphs/contributors`}>Meet the contributors <ArrowRight size={14} /></a>
+          <h2>The contributors</h2>
+          <p>
+            Everyone who writes, reviews, fixes bugs or shares an idea.
+            You're part of this too.
+          </p>
+          <a href={`${REPO}/graphs/contributors`}>
+            See contributors <ArrowRight size={14} />
+          </a>
         </div>
       </section>
     </main>
@@ -464,15 +538,15 @@ function Footer() {
         <a href={REPO}>GitHub</a>
       </div>
 
-      <small>Made with care, not a lot of rules.</small>
+      <small>Made with care. Shared with everyone.</small>
     </footer>
   );
 }
 
 export default function App() {
-  const [dark, setDark] = useState(() => {
-    return localStorage.getItem("blogstar-theme") === "dark";
-  });
+  const [dark, setDark] = useState(
+    () => localStorage.getItem("blogstar-theme") === "dark"
+  );
 
   useEffect(() => {
     localStorage.setItem("blogstar-theme", dark ? "dark" : "light");
