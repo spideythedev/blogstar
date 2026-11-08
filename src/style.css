@@ -904,3 +904,148 @@ main {
     transition-duration: .01ms !important;
   }
 }
+
+
+.post-card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface, var(--background));
+  transition: border-color 220ms ease;
+}
+
+.post-card:hover {
+  border-color: var(--muted);
+}
+
+.post-card article {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-card-cover {
+  display: block;
+  height: 230px;
+  overflow: hidden;
+  background: var(--line);
+}
+
+.post-card-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 500ms cubic-bezier(.2,.7,.2,1);
+}
+
+.post-card:hover .post-card-cover img {
+  transform: scale(1.025);
+}
+
+.post-card-content {
+  padding: 24px;
+}
+
+.post-card-meta,
+.post-card-meta span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.post-card-meta {
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.post-card-content h2 {
+  margin: 18px 0 10px;
+  font-size: clamp(24px, 3vw, 34px);
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+}
+
+.post-card-content h2 a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.post-card-content h2 svg {
+  opacity: 0;
+  transform: translate(-4px, 4px);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.post-card:hover .post-card-content h2 svg {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+.post-card-content > p {
+  max-width: 650px;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.post-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 25px;
+}
+
+.author {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.author img,
+.author-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.author-avatar {
+  display: grid;
+  place-items: center;
+  background: var(--line);
+  font-size: 12px;
+}
+
+.author > svg {
+  color: var(--muted);
+}
+
+.post-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 600px) {
+  .post-card-content {
+    padding: 18px;
+  }
+
+  .post-card-cover {
+    height: 180px;
+  }
+
+  .post-card-content h2 svg {
+    opacity: 1;
+    transform: none;
+  }
+}
+
